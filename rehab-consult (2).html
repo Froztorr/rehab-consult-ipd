@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rehab">
+<title>Rehab Consult</title>
+<style>
+:root{
+  --bg:#0f1117;--s:#1a1d27;--s2:#232637;--bo:rgba(255,255,255,.08);--bo2:rgba(255,255,255,.14);
+  --t:#f0f2ff;--t2:#8b8fa8;--t3:#555870;
+  --a:#6c6fff;--a2:#4e51cc;--g:#3ecf8e;--am:#f5a623;--r:#ff6b6b;--pk:#ff7eb3;
+  --rad:14px;--rsm:8px;
+  --saf-t:env(safe-area-inset-top,20px);--saf-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;background:var(--bg);color:var(--t);overflow-x:hidden;padding-top:var(--saf-t)}
+/* layout */
+#hdr{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px solid var(--bo)}
+.htop{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 0}
+.htitle{font-size:20px;font-weight:700;letter-spacing:-.5px}
+.htitle b{color:var(--a)}
+.hadd{width:34px;height:34px;border-radius:50%;background:var(--a);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .12s}
+.hadd:active{transform:scale(.9)}
+/* tabs */
+.tabs{display:flex;overflow-x:auto;scrollbar-width:none;padding:4px 16px 0;gap:2px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:7px 10px 9px;font-size:12px;font-weight:500;color:var(--t3);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap}
+.tab.on{color:var(--t);border-bottom-color:var(--a)}
+.bdg{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--a);color:#fff;font-size:9px;font-weight:700;margin-left:3px;vertical-align:middle}
+.bdg.h{display:none}
+/* content */
+#content{padding:12px 14px 0;padding-bottom:calc(var(--saf-b) + 70px)}
+.view{display:none}
+.view.on{display:block}
+/* stat bar */
+.sbar{display:flex;gap:8px;margin-bottom:12px}
+.sc{flex:1;background:var(--s2);border-radius:10px;padding:9px 10px;text-align:center;min-width:0}
+.sn{font-size:19px;font-weight:700}
+.sl{font-size:10px;color:var(--t3);margin-top:1px}
+/* section header */
+.sh{font-size:11px;color:var(--t3);font-weight:600;padding:8px 2px 4px;letter-spacing:.3px}
+.sh.imp{color:var(--a);font-size:12px}
+/* cards */
+.cards{display:flex;flex-direction:column;gap:8px;margin-bottom:4px}
+.card{background:var(--s);border:1px solid var(--bo);border-radius:12px;padding:12px 14px;cursor:pointer;position:relative;overflow:hidden;transition:opacity .1s}
+.card:active{opacity:.82}
+.ca{position:absolute;left:0;top:0;bottom:0;width:3px}
+.cr1{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
+.cn{font-size:15px;font-weight:600;flex:1;line-height:1.3}
+.sbtn{width:26px;height:26px;background:none;border:none;color:var(--t3);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color .15s}
+.sbtn.on{color:var(--am)}
+.sbtn:active{transform:scale(1.25)}
+.cmeta{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.bh{padding:2px 7px;border-radius:5px;font-size:11px;font-weight:600;white-space:nowrap}
+.bhn{background:rgba(108,111,255,.15);color:#9b9eff}
+.bwd{background:rgba(62,207,142,.12);color:var(--g)}
+.btp{font-size:10px}
+.cdx{font-size:13px;color:var(--t2);margin-bottom:5px;line-height:1.4}
+.cnotes{font-size:12px;color:var(--t3);margin-bottom:7px;line-height:1.45;background:var(--s2);border-radius:7px;padding:6px 9px;white-space:pre-wrap;border-left:2px solid var(--bo2)}
+.cfoot{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.fd{font-size:11px;color:var(--t3);flex:1;min-width:0}
+.fd.td{color:var(--am);font-weight:600}
+.fd.ov{color:var(--r);font-weight:600}
+.cbtns{display:flex;gap:5px;flex-shrink:0}
+.mb{padding:4px 9px;border-radius:7px;font-size:11px;font-weight:600;border:none;cursor:pointer;white-space:nowrap;transition:opacity .15s}
+.mb:active{opacity:.7}
+.mfu{background:rgba(108,111,255,.2);color:#9b9eff}
+.mdc{background:rgba(255,107,107,.15);color:var(--r)}
+.mun{background:rgba(62,207,142,.15);color:var(--g)}
+/* empty */
+.empty{text-align:center;padding:40px 20px;color:var(--t2)}
+.ei{font-size:40px;margin-bottom:10px}
+.et{font-size:14px}
+.es{font-size:12px;color:var(--t3);margin-top:5px}
+/* overlay */
+.ov-wrap{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .22s}
+.ov-wrap.on{opacity:1;pointer-events:all}
+.sheet{width:100%;background:var(--s);border-radius:20px 20px 0 0;max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);padding-bottom:calc(var(--saf-b) + 16px)}
+.ov-wrap.on .sheet{transform:translateY(0)}
+.shdl{width:34px;height:4px;background:var(--bo2);border-radius:2px;margin:10px auto 0}
+.shhdr{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bo)}
+.shtitle{font-size:16px;font-weight:700}
+.xcls{width:26px;height:26px;border-radius:50%;background:var(--s2);border:none;color:var(--t2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+/* form */
+.form{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fl{font-size:11px;color:var(--t2);font-weight:600;letter-spacing:.4px;text-transform:uppercase}
+.fi,.fsl,.fta{background:var(--s2);border:1px solid var(--bo);border-radius:var(--rsm);color:var(--t);font-size:15px;font-family:-apple-system,BlinkMacSystemFont,sans-serif;outline:none;padding:10px 13px;width:100%;transition:border-color .18s}
+.fi:focus,.fsl:focus,.fta:focus{border-color:var(--a)}
+.fta{resize:none;min-height:72px;line-height:1.45}
+.fsl option{background:var(--s2)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.qd-wrap{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.qd{padding:4px 9px;border-radius:6px;background:var(--s2);border:1px solid var(--bo);color:var(--t2);font-size:11px;cursor:pointer;font-family:-apple-system,sans-serif;transition:all .12s}
+.qd:active{background:var(--a);color:#fff;border-color:var(--a)}
+.sbmt{width:100%;padding:14px;background:var(--a);border:none;border-radius:var(--rsm);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:-apple-system,sans-serif;margin-top:2px;transition:background .15s}
+.sbmt:active{background:var(--a2)}
+/* detail */
+.dsec{padding:12px 16px;border-bottom:1px solid var(--bo)}
+.dl{font-size:10px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.dv{font-size:14px}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.dnotes{font-size:13px;color:var(--t2);line-height:1.55;white-space:pre-wrap;margin-top:3px;background:var(--s2);border-radius:7px;padding:9px 11px;border-left:2px solid var(--bo2)}
+.dacts{padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.ab{width:100%;padding:12px;border-radius:var(--rsm);border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:-apple-system,sans-serif;transition:opacity .15s}
+.ab:active{opacity:.72}
+.ap{background:rgba(108,111,255,.2);color:#9b9eff}
+.ag{background:rgba(62,207,142,.15);color:var(--g)}
+.aw{background:rgba(245,166,35,.15);color:var(--am)}
+.agr{background:var(--s2);color:var(--t2)}
+.ard{background:rgba(255,69,58,.12);color:#ff453a}
+/* search + filter */
+.sw{position:relative;margin-bottom:10px}
+.si{width:100%;padding:9px 14px 9px 36px;background:var(--s2);border:1px solid var(--bo);border-radius:11px;color:var(--t);font-size:13px;font-family:-apple-system,sans-serif;outline:none}
+.si:focus{border-color:var(--a)}
+.si::placeholder{color:var(--t3)}
+.sico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:14px;pointer-events:none}
+.fw{display:flex;gap:5px;overflow-x:auto;padding-bottom:8px;margin-bottom:6px;scrollbar-width:none}
+.fw::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:4px 11px;border-radius:20px;border:1px solid var(--bo);background:var(--s2);color:var(--t2);font-size:11px;cursor:pointer;transition:all .12s;white-space:nowrap}
+.chip.on{background:var(--a);border-color:var(--a);color:#fff}
+/* date range row */
+.dr{display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.dr label{font-size:11px;color:var(--t3);white-space:nowrap}
+.dr .fi{flex:1;min-width:110px;padding:8px 11px;font-size:13px}
+/* month group */
+.mhdr{font-size:12px;font-weight:700;color:var(--t2);padding:10px 2px 5px;letter-spacing:.2px;display:flex;align-items:center;gap:6px}
+.mhdr span{font-size:11px;color:var(--t3);font-weight:400}
+/* stats table */
+.stbl{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px}
+.stbl th{color:var(--t3);text-align:left;padding:5px 7px;border-bottom:1px solid var(--bo);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.stbl td{padding:7px 7px;border-bottom:1px solid var(--bo)}
+.stbl tr:last-child td{font-weight:700;background:var(--s2);color:var(--t)}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle}
+/* chart */
+.cwrap{margin-bottom:20px}
+.ctitle{font-size:12px;color:var(--t2);margin-bottom:8px;font-weight:600}
+.leg{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.li{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--t2)}
+.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+/* clear / export float */
+.fab-wrap{position:fixed;right:16px;bottom:calc(var(--saf-b) + 76px);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.fab{width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 2px 12px rgba(0,0,0,.4);transition:transform .12s}
+.fab:active{transform:scale(.9)}
+.fab-del{background:#2a1515;color:var(--r)}
+/* export btn */
+.expbtn{display:flex;align-items:center;gap:5px;padding:7px 12px;background:var(--s2);border:1px solid var(--bo);border-radius:9px;color:var(--t2);font-size:12px;cursor:pointer;font-family:-apple-system,sans-serif;margin-bottom:10px;transition:opacity .15s}
+.expbtn:active{opacity:.7}
+/* toast */
+.toast{position:fixed;bottom:calc(var(--saf-b) + 80px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--s2);border:1px solid var(--bo2);padding:9px 18px;border-radius:18px;font-size:12px;z-index:300;opacity:0;transition:all .25s;white-space:nowrap;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+/* type colors */
+.tc-s{background:rgba(255,126,179,.2);color:#ff7eb3}
+.tc-c{background:rgba(108,111,255,.25);color:#9b9eff}
+.tc-p{background:rgba(62,207,142,.18);color:#3ecf8e}
+.tc-sw{background:rgba(245,166,35,.2);color:#f5a623}
+.tc-ca{background:rgba(255,107,107,.18);color:#ff6b6b}
+.tc-pu{background:rgba(100,210,255,.18);color:#64d2ff}
+.tc-po{background:rgba(191,148,255,.18);color:#bf94ff}
+.tc-b{background:rgba(255,159,10,.18);color:#ff9f0a}
+.tc-i{background:rgba(255,69,58,.2);color:#ff453a}
+.tc-pr{background:rgba(48,209,88,.15);color:#30d158}
+.tc-h{background:rgba(100,210,255,.15);color:#5ac8fa}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.card{animation:fi .2s ease both}
+/* confirm modal */
+.conf-wrap{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .2s}
+.conf-wrap.on{opacity:1;pointer-events:all}
+.conf-box{background:var(--s);border:1px solid var(--bo2);border-radius:18px;padding:24px 20px 16px;width:100%;max-width:320px;text-align:center;transform:scale(.92);transition:transform .2s}
+.conf-wrap.on .conf-box{transform:scale(1)}
+.conf-icon{font-size:36px;margin-bottom:10px}
+.conf-title{font-size:16px;font-weight:700;margin-bottom:6px}
+.conf-msg{font-size:13px;color:var(--t2);line-height:1.5;margin-bottom:20px}
+.conf-btns{display:flex;gap:10px}
+.conf-btns button{flex:1;padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:-apple-system,sans-serif;transition:opacity .15s}
+.conf-btns button:active{opacity:.7}
+.conf-cancel{background:var(--s2);color:var(--t2)}
+.conf-ok{background:var(--r);color:#fff}
+</style>
+</head>
+<body>
+<div id="hdr">
+  <div class="htop">
+    <div class="htitle">Rehab <b>Consult</b></div>
+    <button class="hadd" onclick="openAdd()" aria-label="Add">+</button>
+  </div>
+  <div class="tabs" id="tabrow">
+    <button class="tab on" id="t-today" onclick="go('today')">📋 Today<span class="bdg h" id="b-today"></span></button>
+    <button class="tab" id="t-imp" onclick="go('imp')">⏰ Impending<span class="bdg h" id="b-imp"></span></button>
+    <button class="tab" id="t-done" onclick="go('done')">✅ Done<span class="bdg h" id="b-done"></span></button>
+    <button class="tab" id="t-dc" onclick="go('dc')">🏠 Discharged<span class="bdg h" id="b-dc"></span></button>
+    <button class="tab" id="t-vip" onclick="go('vip')">⭐ VIP<span class="bdg h" id="b-vip"></span></button>
+    <button class="tab" id="t-stats" onclick="go('stats')">📊 Stats</button>
+  </div>
+</div>
+
+<div id="content">
+  <div class="view on" id="v-today"></div>
+  <div class="view" id="v-imp"></div>
+  <div class="view" id="v-done"></div>
+  <div class="view" id="v-dc"></div>
+  <div class="view" id="v-vip"></div>
+  <div class="view" id="v-stats"></div>
+</div>
+
+<div class="fab-wrap">
+  <button class="fab fab-del" onclick="confirmClearAll()" aria-label="Clear all data">🗑</button>
+</div>
+
+<!-- ADD/EDIT -->
+<div class="ov-wrap" id="ov-add" onclick="bkd(event,'ov-add')">
+ <div class="sheet">
+  <div class="shdl"></div>
+  <div class="shhdr"><div class="shtitle" id="ft-title">New Consult</div><button class="xcls" onclick="cls('ov-add')">✕</button></div>
+  <div class="form">
+   <input type="hidden" id="eid">
+   <div class="fg"><label class="fl">Patient Name *</label><input class="fi" id="fn" placeholder="ชื่อ-นามสกุล" type="text" autocomplete="off"></div>
+   <div class="frow">
+    <div class="fg"><label class="fl">HN</label><input class="fi" id="fhn" placeholder="00000/00" type="text" autocomplete="off"></div>
+    <div class="fg"><label class="fl">Ward</label><input class="fi" id="fwd" placeholder="18a2/12-1" type="text" autocomplete="off"></div>
+   </div>
+   <div class="fg"><label class="fl">Diagnosis</label><input class="fi" id="fdx" placeholder="e.g. Lt MCA infarct" type="text" autocomplete="off"></div>
+   <div class="fg"><label class="fl">Category *</label>
+    <select class="fsl" id="fty">
+     <option value="">-- Select --</option>
+     <option>Stroke</option><option>Chronic med</option><option>Post op</option><option>Swallow</option>
+     <option>Cardiac</option><option>Pulmo</option><option>PO</option><option>Burn</option>
+     <option>ICU</option><option>Prehab</option><option>Hip fast</option>
+    </select>
+   </div>
+   <div class="fg"><label class="fl">Follow-up Date</label>
+    <input class="fi" id="ffu" type="date">
+    <div class="qd-wrap">
+     <button class="qd" onclick="qd(0,'ffu')">Today</button><button class="qd" onclick="qd(1,'ffu')">+1d</button>
+     <button class="qd" onclick="qd(2,'ffu')">+2d</button><button class="qd" onclick="qd(3,'ffu')">+3d</button>
+     <button class="qd" onclick="qd(7,'ffu')">+1wk</button><button class="qd" onclick="qd(14,'ffu')">+2wk</button>
+     <button class="qd" onclick="qd(30,'ffu')">+1mo</button><button class="qd" onclick="qd(60,'ffu')">+2mo</button>
+     <button class="qd" onclick="qd(90,'ffu')">+3mo</button>
+    </div>
+   </div>
+   <div class="fg"><label class="fl">Notes</label><textarea class="fta" id="fnt" placeholder="Clinical notes, plan..."></textarea></div>
+   <button class="sbmt" onclick="saveCase()">Save</button>
+  </div>
+ </div>
+</div>
+
+<!-- DETAIL -->
+<div class="ov-wrap" id="ov-det" onclick="bkd(event,'ov-det')">
+ <div class="sheet">
+  <div class="shdl"></div>
+  <div class="shhdr"><div class="shtitle" id="det-name">–</div><button class="xcls" onclick="cls('ov-det')">✕</button></div>
+  <div id="det-body"></div>
+ </div>
+</div>
+
+<!-- FU DATE -->
+<div class="ov-wrap" id="ov-fu" onclick="bkd(event,'ov-fu')">
+ <div class="sheet">
+  <div class="shdl"></div>
+  <div class="shhdr"><div class="shtitle">Set Follow-up Date</div><button class="xcls" onclick="cls('ov-fu')">✕</button></div>
+  <div class="form">
+   <div class="fg"><label class="fl">Next Follow-up</label>
+    <input class="fi" id="fuinp" type="date">
+    <div class="qd-wrap">
+     <button class="qd" onclick="qd(0,'fuinp')">Today</button><button class="qd" onclick="qd(1,'fuinp')">+1d</button>
+     <button class="qd" onclick="qd(2,'fuinp')">+2d</button><button class="qd" onclick="qd(3,'fuinp')">+3d</button>
+     <button class="qd" onclick="qd(7,'fuinp')">+1wk</button><button class="qd" onclick="qd(14,'fuinp')">+2wk</button>
+     <button class="qd" onclick="qd(30,'fuinp')">+1mo</button><button class="qd" onclick="qd(60,'fuinp')">+2mo</button>
+     <button class="qd" onclick="qd(90,'fuinp')">+3mo</button>
+    </div>
+   </div>
+   <button class="sbmt" onclick="saveFU()">Confirm</button>
+  </div>
+ </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- CONFIRM MODAL -->
+<div class="conf-wrap" id="conf-wrap">
+  <div class="conf-box">
+    <div class="conf-icon" id="conf-icon">⚠️</div>
+    <div class="conf-title" id="conf-title">Are you sure?</div>
+    <div class="conf-msg" id="conf-msg"></div>
+    <div class="conf-btns">
+      <button class="conf-cancel" onclick="confCancel()">Cancel</button>
+      <button class="conf-ok" id="conf-ok-btn" onclick="confOk()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const SK='rehab_v3';
+let tab='today',fuId=null,pie=null;
+let dcFilter='All',dcSearch='',dcFrom='',dcTo='';
+let doneFilter='All',doneSearch='';
+let stFrom='',stTo='';
+
+const TYPES=['Stroke','Chronic med','Post op','Swallow','Cardiac','Pulmo','PO','Burn','ICU','Prehab','Hip fast'];
+const TC={Stroke:'tc-s','Chronic med':'tc-c','Post op':'tc-p',Swallow:'tc-sw',Cardiac:'tc-ca',Pulmo:'tc-pu',PO:'tc-po',Burn:'tc-b',ICU:'tc-i',Prehab:'tc-pr','Hip fast':'tc-h'};
+const TK={Stroke:'#ff7eb3','Chronic med':'#6c6fff','Post op':'#3ecf8e',Swallow:'#f5a623',Cardiac:'#ff6b6b',Pulmo:'#64d2ff',PO:'#bf94ff',Burn:'#ff9f0a',ICU:'#ff453a',Prehab:'#30d158','Hip fast':'#5ac8fa'};
+
+const load=()=>{try{return JSON.parse(localStorage.getItem(SK))||[]}catch{return[]}};
+const save=d=>localStorage.setItem(SK,JSON.stringify(d));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const today=()=>new Date().toISOString().split('T')[0];
+const fd=s=>{if(!s)return'–';const[y,m,d]=s.split('-');return`${d}/${m}/${y.slice(2)}`};
+const addD=(s,n)=>{const d=new Date(s);d.setDate(d.getDate()+n);return d.toISOString().split('T')[0]};
+const weekEnd=()=>{const d=new Date(),n=5-d.getDay();const f=new Date(d);f.setDate(d.getDate()+(n>=0?n:n+7));return f.toISOString().split('T')[0]};
+const weekAgo=()=>addD(today(),-7);
+const monthKey=s=>{if(!s)return'';const[y,m]=s.split('-');const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`${mn[parseInt(m)-1]} ${y}`};
+const dayLbl=s=>{
+  const t=today(),diff=Math.round((new Date(s)-new Date(t))/86400000);
+  if(diff===0)return'Today';if(diff===1)return'Tomorrow';if(diff===-1)return'Yesterday';
+  return['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(s).getDay()]+' '+fd(s);
+};
+
+function card(c){
+  const t=today(),ov=!c.dc&&c.fu&&c.fu<t,isT=c.fu===t;
+  let flab=c.dc?`<span class="fd">DC ${fd(c.dcDate)}</span>`:
+    !c.fu?`<span class="fd">No F/U set</span>`:
+    ov?`<span class="fd ov">⚠ Overdue ${fd(c.fu)}</span>`:
+    isT?`<span class="fd td">📅 F/U Today</span>`:
+    `<span class="fd">F/U ${fd(c.fu)}</span>`;
+  return`<div class="card" onclick="openDet('${c.id}')">
+    <div class="ca" style="background:${TK[c.ty]||'#6c6fff'}"></div>
+    <div class="cr1">
+      <div class="cn">${c.nm||'–'}</div>
+      <button class="sbtn${c.st?' on':''}" onclick="event.stopPropagation();star('${c.id}')" aria-label="VIP">★</button>
+    </div>
+    <div class="cmeta">
+      ${c.hn?`<span class="bh bhn">HN ${c.hn}</span>`:''}
+      ${c.wd?`<span class="bh bwd">${c.wd}</span>`:''}
+      ${c.ty?`<span class="bh btp ${TC[c.ty]||''}">${c.ty}</span>`:''}
+    </div>
+    ${c.dx?`<div class="cdx">${c.dx}</div>`:''}
+    ${c.nt?`<div class="cnotes">${c.nt}</div>`:''}
+    <div class="cfoot">${flab}<div class="cbtns">
+      ${!c.dc?`<button class="mb mfu" onclick="event.stopPropagation();openFU('${c.id}')">Set F/U</button>`:''}
+      ${c.dc?`<button class="mb mun" onclick="event.stopPropagation();undc('${c.id}')">↩ Reactivate</button>`:
+              `<button class="mb mdc" onclick="event.stopPropagation();dc('${c.id}')">Discharge</button>`}
+    </div></div>
+  </div>`;
+}
+
+function grouped(cases,keyFn,lblFn,emptyMsg,emptyHint,clsName='sh'){
+  if(!cases.length)return`<div class="empty"><div class="ei">📭</div><div class="et">${emptyMsg}</div>${emptyHint?`<div class="es">${emptyHint}</div>`:''}</div>`;
+  const g={};cases.forEach(c=>{const k=keyFn(c);(g[k]=g[k]||[]).push(c)});
+  return Object.keys(g).map(k=>`<div class="${clsName}">${lblFn(k,g[k].length)}</div><div class="cards">${g[k].map(card).join('')}</div>`).join('');
+}
+
+function chips(types,cur,fn){
+  return`<div class="fw">${['All',...types].map(t=>`<button class="chip${cur===t?' on':''}" onclick="${fn}('${t}')">${t}</button>`).join('')}</div>`;
+}
+
+/* ===== TODAY ===== */
+function rToday(){
+  const all=load(),t=today(),act=all.filter(c=>!c.dc);
+  const ov=act.filter(c=>c.fu&&c.fu<t),td=act.filter(c=>c.fu===t),nd=act.filter(c=>!c.fu);
+  let h=`<div class="sbar">
+    <div class="sc"><div class="sn" style="color:var(--a)">${act.length}</div><div class="sl">Active</div></div>
+    <div class="sc"><div class="sn" style="color:var(--am)">${td.length+ov.length}</div><div class="sl">Due Today</div></div>
+    <div class="sc"><div class="sn" style="color:var(--t3)">${all.filter(c=>c.dc).length}</div><div class="sl">Discharged</div></div>
+  </div>`;
+  if(ov.length)h+=`<div class="sh">⚠️ Overdue (${ov.length})</div><div class="cards">${ov.map(card).join('')}</div>`;
+  if(td.length)h+=`<div class="sh" style="margin-top:8px">📅 Today — ${fd(t)} (${td.length})</div><div class="cards">${td.map(card).join('')}</div>`;
+  if(nd.length)h+=`<div class="sh" style="margin-top:8px">No F/U date (${nd.length})</div><div class="cards">${nd.map(card).join('')}</div>`;
+  if(!ov.length&&!td.length&&!nd.length)h+=`<div class="empty"><div class="ei">${act.length?'✅':'🏥'}</div><div class="et">${act.length?'All clear for today':'No active cases'}</div><div class="es">${act.length?act.length+' case(s) with future F/U':'Tap + to add a consult'}</div></div>`;
+  set('v-today',h);
+}
+
+/* ===== IMPENDING ===== */
+function rImp(){
+  const t=today(),tom=addD(t,1),we=weekEnd();
+  const cases=load().filter(c=>!c.dc&&c.fu&&c.fu>=tom&&c.fu<=we).sort((a,b)=>a.fu.localeCompare(b.fu));
+  set('v-imp',grouped(cases,c=>c.fu,(k,n)=>`<span class="imp">📅 ${dayLbl(k)}</span> <span style="color:var(--t3);font-size:11px">(${n})</span>`,'No upcoming cases this week','Cases with F/U from tomorrow to Friday appear here','sh imp'));
+}
+
+/* ===== DONE (past 7 days) ===== */
+function setDoneFilter(f){doneFilter=f;rDone()}
+function rDone(){
+  const wa=weekAgo(),t=today();
+  let cases=load().filter(c=>!c.dc&&c.fu&&c.fu>=wa&&c.fu<=t);
+  if(doneSearch){const q=doneSearch.toLowerCase();cases=cases.filter(c=>[c.nm,c.hn,c.wd,c.dx].some(x=>(x||'').toLowerCase().includes(q)))}
+  if(doneFilter!=='All')cases=cases.filter(c=>c.ty===doneFilter);
+  cases.sort((a,b)=>b.fu.localeCompare(a.fu));
+  let h=`<div class="sw"><span class="sico">🔍</span><input class="si" placeholder="Search..." value="${doneSearch}" oninput="doneSearch=this.value;rDone()" type="search"></div>`;
+  h+=chips(TYPES,doneFilter,'setDoneFilter');
+  h+=grouped(cases,c=>c.fu,(k,n)=>`📋 ${dayLbl(k)} (${n})`,'No visits this week','Cases with F/U in the past 7 days appear here');
+  set('v-done',h);
+}
+
+/* ===== DISCHARGED ===== */
+function setDcFilter(f){dcFilter=f;rDc()}
+function rDc(){
+  let cases=load().filter(c=>c.dc);
+  if(dcSearch){const q=dcSearch.toLowerCase();cases=cases.filter(c=>[c.nm,c.hn,c.wd,c.dx].some(x=>(x||'').toLowerCase().includes(q)))}
+  if(dcFilter!=='All')cases=cases.filter(c=>c.ty===dcFilter);
+  if(dcFrom||dcTo){
+    cases=cases.filter(c=>{
+      const d=c.dcDate||'';
+      return(!dcFrom||d>=dcFrom)&&(!dcTo||d<=dcTo);
+    });
+  }
+  cases.sort((a,b)=>(b.dcDate||'').localeCompare(a.dcDate||''));
+  let h=`<div class="sw"><span class="sico">🔍</span><input class="si" placeholder="Search discharged..." value="${dcSearch}" oninput="dcSearch=this.value;rDc()" type="search"></div>`;
+  h+=chips(TYPES,dcFilter,'setDcFilter');
+  h+=`<div class="dr"><label>From</label><input class="fi" type="date" value="${dcFrom}" onchange="dcFrom=this.value;rDc()"><label>To</label><input class="fi" type="date" value="${dcTo}" onchange="dcTo=this.value;rDc()"></div>`;
+  h+=`<button class="expbtn" onclick="expCSV()">⬇ Export CSV</button>`;
+  h+=grouped(cases,c=>monthKey(c.dcDate||c.fu),(k,n)=>`📦 ${k} <span>(${n})</span>`,'No discharged patients','','mhdr');
+  set('v-dc',h);
+}
+
+/* ===== VIP ===== */
+function rVip(){
+  const cases=load().filter(c=>c.st);
+  set('v-vip',cases.length?`<div class="cards">${cases.map(card).join('')}</div>`:`<div class="empty"><div class="ei">⭐</div><div class="et">No VIP cases</div><div class="es">Tap ★ on any case</div></div>`);
+}
+
+/* ===== STATS ===== */
+function rStats(){
+  const t=today();
+  if(!stFrom)stFrom=addD(t,-30);
+  if(!stTo)stTo=t;
+  let h=`<div class="dr"><label>From</label><input class="fi" type="date" value="${stFrom}" onchange="stFrom=this.value;rStats()"><label>To</label><input class="fi" type="date" value="${stTo}" onchange="stTo=this.value;rStats()"></div>`;
+  const cases=load().filter(c=>{const d=(c.created||'').split('T')[0];return d>=stFrom&&d<=stTo});
+  const cnt={};TYPES.forEach(t=>cnt[t]=0);cases.forEach(c=>{if(cnt[c.ty]!==undefined)cnt[c.ty]++});
+  const total=cases.length;
+  h+=`<table class="stbl"><thead><tr><th>Category</th><th style="text-align:right">n</th><th style="text-align:right">%</th></tr></thead><tbody>`;
+  TYPES.forEach(t=>{if(!cnt[t])return;const p=((cnt[t]/total)*100).toFixed(1);h+=`<tr><td><span class="dot" style="background:${TK[t]}"></span>${t}</td><td style="text-align:right;font-weight:600">${cnt[t]}</td><td style="text-align:right;color:var(--t3)">${p}%</td></tr>`});
+  h+=`<tr><td><b>Total</b></td><td style="text-align:right">${total}</td><td style="text-align:right">–</td></tr></tbody></table>`;
+  if(total>0)h+=`<div class="cwrap"><div class="ctitle">Distribution by category</div><canvas id="pieC" height="240"></canvas><div class="leg" id="leg"></div></div>`;
+  else h+=`<div class="empty"><div class="ei">📊</div><div class="et">No cases in range</div></div>`;
+  set('v-stats',h);
+  if(total>0)setTimeout(()=>{
+    const at=TYPES.filter(t=>cnt[t]>0);
+    if(pie){pie.destroy();pie=null}
+    const ctx=document.getElementById('pieC');if(!ctx)return;
+    pie=new Chart(ctx,{type:'doughnut',data:{labels:at,datasets:[{data:at.map(t=>cnt[t]),backgroundColor:at.map(t=>TK[t]),borderWidth:2,borderColor:'#1a1d27',hoverOffset:5}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const p=((c.parsed/total)*100).toFixed(1);return` ${c.label}: ${c.parsed} (${p}%)`}}}},cutout:'56%'}});
+    const leg=document.getElementById('leg');
+    if(leg)leg.innerHTML=at.map(t=>`<div class="li"><div class="ld" style="background:${TK[t]}"></div>${t} (${cnt[t]})</div>`).join('');
+  },60);
+}
+
+/* ===== BADGES ===== */
+function badges(){
+  const all=load(),t=today(),tom=addD(t,1),we=weekEnd(),wa=weekAgo();
+  const b=(id,n)=>{const e=document.getElementById(id);if(!e)return;e.textContent=n;e.classList.toggle('h',!n)};
+  b('b-today',all.filter(c=>!c.dc&&(c.fu===t||(c.fu&&c.fu<t))).length);
+  b('b-imp',all.filter(c=>!c.dc&&c.fu&&c.fu>=tom&&c.fu<=we).length);
+  b('b-done',all.filter(c=>!c.dc&&c.fu&&c.fu>=wa&&c.fu<=t).length);
+  b('b-dc',all.filter(c=>c.dc).length);
+  b('b-vip',all.filter(c=>c.st).length);
+}
+
+/* ===== TAB ===== */
+function go(t){
+  tab=t;
+  ['today','imp','done','dc','vip','stats'].forEach(x=>{
+    document.getElementById('t-'+x).classList.toggle('on',x===t);
+    document.getElementById('v-'+x).classList.toggle('on',x===t);
+  });
+  render();
+}
+function render(){
+  if(tab==='today')rToday();
+  else if(tab==='imp')rImp();
+  else if(tab==='done')rDone();
+  else if(tab==='dc')rDc();
+  else if(tab==='vip')rVip();
+  else rStats();
+  badges();
+}
+
+/* ===== DETAIL ===== */
+function openDet(id){
+  const c=load().find(x=>x.id===id);if(!c)return;
+  document.getElementById('det-name').textContent=c.nm||'–';
+  const fus=c.dc?`<span style="color:var(--t3)">DC ${fd(c.dcDate)}</span>`:c.fu?fd(c.fu):'–';
+  document.getElementById('det-body').innerHTML=`
+  <div class="dsec"><div class="dgrid">
+    <div><div class="dl">HN</div><div class="dv">${c.hn||'–'}</div></div>
+    <div><div class="dl">Ward</div><div class="dv">${c.wd||'–'}</div></div>
+    <div><div class="dl">Category</div><div class="dv"><span class="bh btp ${TC[c.ty]||''}">${c.ty||'–'}</span></div></div>
+    <div><div class="dl">Follow-up</div><div class="dv">${fus}</div></div>
+  </div></div>
+  ${c.dx?`<div class="dsec"><div class="dl">Diagnosis</div><div class="dv" style="margin-top:3px">${c.dx}</div></div>`:''}
+  ${c.nt?`<div class="dsec"><div class="dl">Notes</div><div class="dnotes">${c.nt}</div></div>`:''}
+  <div class="dsec" style="border:none"><div class="dl">Added</div><div class="dv" style="font-size:12px;color:var(--t3)">${c.created?new Date(c.created).toLocaleString('th-TH'):'–'}</div></div>
+  <div class="dacts">
+    ${!c.dc?`<button class="ab ap" onclick="cls('ov-det');setTimeout(()=>openFU('${c.id}'),180)">📅 Set Follow-up Date</button>`:''}
+    <button class="ab aw" onclick="openEdit('${c.id}')">✏️ Edit Case</button>
+    <button class="ab agr" onclick="star('${c.id}');openDet('${c.id}')">${c.st?'☆ Remove VIP':'⭐ Mark as VIP'}</button>
+    ${c.dc?`<button class="ab ag" onclick="undc('${c.id}');cls('ov-det')">↩ Reactivate</button>`:`<button class="ab" style="background:rgba(255,107,107,.15);color:var(--r)" onclick="dc('${c.id}');cls('ov-det')">🏠 Discharge</button>`}
+    <button class="ab ard" onclick="del('${c.id}')">🗑 Delete Case</button>
+  </div>`;
+  open('ov-det');
+}
+
+/* ===== ADD/EDIT ===== */
+function openAdd(){
+  document.getElementById('eid').value='';
+  document.getElementById('ft-title').textContent='New Consult';
+  ['fn','fhn','fwd','fdx','fnt'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('fty').value='';
+  document.getElementById('ffu').value='';
+  open('ov-add');
+}
+function openEdit(id){
+  const c=load().find(x=>x.id===id);if(!c)return;
+  document.getElementById('eid').value=id;
+  document.getElementById('ft-title').textContent='Edit Consult';
+  document.getElementById('fn').value=c.nm||'';
+  document.getElementById('fhn').value=c.hn||'';
+  document.getElementById('fwd').value=c.wd||'';
+  document.getElementById('fdx').value=c.dx||'';
+  document.getElementById('fty').value=c.ty||'';
+  document.getElementById('ffu').value=c.fu||'';
+  document.getElementById('fnt').value=c.nt||'';
+  cls('ov-det');setTimeout(()=>open('ov-add'),180);
+}
+function saveCase(){
+  const nm=document.getElementById('fn').value.trim(),ty=document.getElementById('fty').value;
+  if(!nm)return toast('⚠ Enter patient name');
+  if(!ty)return toast('⚠ Select a category');
+  const all=load(),id=document.getElementById('eid').value;
+  const data={nm,ty,hn:document.getElementById('fhn').value.trim(),wd:document.getElementById('fwd').value.trim(),dx:document.getElementById('fdx').value.trim(),fu:document.getElementById('ffu').value,nt:document.getElementById('fnt').value.trim(),upd:new Date().toISOString()};
+  if(id){const i=all.findIndex(x=>x.id===id);if(i>=0)all[i]={...all[i],...data}}
+  else all.unshift({id:uid(),created:new Date().toISOString(),st:false,dc:false,...data});
+  save(all);cls('ov-add');render();toast(id?'✅ Updated':'✅ Case added');
+}
+
+/* ===== FU ===== */
+function openFU(id){fuId=id;const c=load().find(x=>x.id===id);document.getElementById('fuinp').value=c?.fu||'';open('ov-fu')}
+function saveFU(){
+  if(!fuId)return;const all=load(),c=all.find(x=>x.id===fuId);
+  if(c){c.fu=document.getElementById('fuinp').value;save(all)}
+  cls('ov-fu');render();toast('📅 Follow-up updated');
+}
+function qd(n,id){const d=new Date();d.setDate(d.getDate()+n);document.getElementById(id).value=d.toISOString().split('T')[0]}
+
+/* ===== ACTIONS ===== */
+function star(id){const all=load(),c=all.find(x=>x.id===id);if(!c)return;c.st=!c.st;save(all);render();toast(c.st?'⭐ Marked VIP':'☆ Removed from VIP')}
+function dc(id){const all=load(),c=all.find(x=>x.id===id);if(!c)return;c.dc=true;c.dcDate=today();save(all);render();toast('🏠 Discharged')}
+function undc(id){const all=load(),c=all.find(x=>x.id===id);if(!c)return;c.dc=false;c.dcDate=null;save(all);render();toast('↩ Reactivated')}
+function del(id){
+  showConf('🗑','Delete case?','This case will be permanently removed from your device.',
+    'Delete',()=>{save(load().filter(x=>x.id!==id));cls('ov-det');render();toast('🗑 Deleted')});
+}
+function confirmClearAll(){
+  showConf('⚠️','Delete ALL data?','This will permanently erase every patient record stored on this device. This cannot be undone.',
+    'Delete All',()=>{localStorage.removeItem(SK);if(pie){pie.destroy();pie=null}render();toast('🗑 All data cleared')});
+}
+/* custom confirm modal */
+let confCb=null;
+function showConf(icon,title,msg,okLabel,cb){
+  confCb=cb;
+  document.getElementById('conf-icon').textContent=icon;
+  document.getElementById('conf-title').textContent=title;
+  document.getElementById('conf-msg').textContent=msg;
+  document.getElementById('conf-ok-btn').textContent=okLabel;
+  document.getElementById('conf-wrap').classList.add('on');
+}
+function confOk(){document.getElementById('conf-wrap').classList.remove('on');if(confCb)confCb();confCb=null}
+function confCancel(){document.getElementById('conf-wrap').classList.remove('on');confCb=null}
+
+/* ===== EXPORT ===== */
+function expCSV(){
+  const hdr=['Name','HN','Ward','Dx','Type','FU Date','DC Date','Notes','Created'];
+  const rows=load().map(c=>[c.nm,c.hn,c.wd,c.dx,c.ty,c.fu,c.dcDate,c.nt,(c.created||'').split('T')[0]].map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(','));
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+[hdr.join(','),...rows].join('\n')],{type:'text/csv;charset=utf-8'}));
+  a.download=`rehab_${today()}.csv`;a.click();toast('⬇ CSV exported');
+}
+
+/* ===== UTILS ===== */
+function set(id,h){const e=document.getElementById(id);if(e)e.innerHTML=h}
+function open(id){document.getElementById(id).classList.add('on')}
+function cls(id){document.getElementById(id).classList.remove('on')}
+function bkd(e,id){if(e.target===document.getElementById(id))cls(id)}
+let toastTimer=null;
+function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('on');clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.classList.remove('on'),2000)}
+
+render();
+</script>
+</body>
+</html>
