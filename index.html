@@ -234,7 +234,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
    <div class="fg"><label class="fl">Follow-up Date</label>
     <input class="fi" id="ffu" type="date">
     <div class="qd-wrap">
-     <button class="qd" onclick="qd(0,'ffu')">Today</button><button class="qd" onclick="qd(1,'ffu')">+1d</button>
+     <button class="qd" onclick="qdToday('ffu')">From today</button>
+     <button class="qd" onclick="qd(0,'ffu')">+0d</button><button class="qd" onclick="qd(1,'ffu')">+1d</button>
      <button class="qd" onclick="qd(2,'ffu')">+2d</button><button class="qd" onclick="qd(3,'ffu')">+3d</button>
      <button class="qd" onclick="qd(7,'ffu')">+1wk</button><button class="qd" onclick="qd(14,'ffu')">+2wk</button>
      <button class="qd" onclick="qd(30,'ffu')">+1mo</button><button class="qd" onclick="qd(60,'ffu')">+2mo</button>
@@ -265,7 +266,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
    <div class="fg"><label class="fl">Next Follow-up</label>
     <input class="fi" id="fuinp" type="date">
     <div class="qd-wrap">
-     <button class="qd" onclick="qd(0,'fuinp')">Today</button><button class="qd" onclick="qd(1,'fuinp')">+1d</button>
+     <button class="qd" onclick="qdToday('fuinp')">From today</button>
+     <button class="qd" onclick="qd(0,'fuinp')">+0d</button><button class="qd" onclick="qd(1,'fuinp')">+1d</button>
      <button class="qd" onclick="qd(2,'fuinp')">+2d</button><button class="qd" onclick="qd(3,'fuinp')">+3d</button>
      <button class="qd" onclick="qd(7,'fuinp')">+1wk</button><button class="qd" onclick="qd(14,'fuinp')">+2wk</button>
      <button class="qd" onclick="qd(30,'fuinp')">+1mo</button><button class="qd" onclick="qd(60,'fuinp')">+2mo</button>
@@ -562,7 +564,8 @@ function saveFU(){
   if(c){c.fu=document.getElementById('fuinp').value;save(all)}
   cls('ov-fu');render();toast('📅 Follow-up updated');
 }
-function qd(n,id){const d=new Date();d.setDate(d.getDate()+n);document.getElementById(id).value=d.toISOString().split('T')[0]}
+function qd(n,id){const el=document.getElementById(id);const base=el.value?new Date(el.value+'T00:00:00'):new Date();base.setDate(base.getDate()+n);el.value=base.toISOString().split('T')[0]}
+function qdToday(id){const d=new Date();document.getElementById(id).value=d.toISOString().split('T')[0]}
 
 /* ===== ACTIONS ===== */
 function star(id){const all=load(),c=all.find(x=>x.id===id);if(!c)return;c.st=!c.st;save(all);render();toast(c.st?'⭐ Marked VIP':'☆ Removed from VIP')}
