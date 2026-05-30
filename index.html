@@ -185,7 +185,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 <div id="hdr">
   <div class="htop">
     <div class="htitle">Rehab <b>Consult</b></div>
-    <button class="hadd" onclick="openAdd()" aria-label="Add">+</button>
+    <button class="fab-del" onclick="confirmClearAll()" aria-label="Clear all data" style="width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;background:#2a1515;color:var(--r)">🗑</button>
   </div>
   <div class="tabs" id="tabrow">
     <button class="tab on" id="t-today" onclick="go('today')">📋 Today<span class="bdg h" id="b-today"></span></button>
@@ -207,7 +207,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 </div>
 
 <div class="fab-wrap">
-  <button class="fab fab-del" onclick="confirmClearAll()" aria-label="Clear all data">🗑</button>
+  <button class="fab" onclick="openAdd()" aria-label="Add new case" style="background:var(--a);color:#fff;font-size:26px">+</button>
 </div>
 
 <!-- ADD/EDIT -->
