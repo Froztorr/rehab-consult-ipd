@@ -190,7 +190,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
   <div class="tabs" id="tabrow">
     <button class="tab on" id="t-today" onclick="go('today')">📋 Today<span class="bdg h" id="b-today"></span></button>
     <button class="tab" id="t-imp" onclick="go('imp')">⏰ Impending<span class="bdg h" id="b-imp"></span></button>
-    <button class="tab" id="t-done" onclick="go('done')">✅ Done<span class="bdg h" id="b-done"></span></button>
+    <button class="tab" id="t-done" onclick="go('done')">📋 All Cases<span class="bdg h" id="b-done"></span></button>
     <button class="tab" id="t-dc" onclick="go('dc')">🏠 Discharged<span class="bdg h" id="b-dc"></span></button>
     <button class="tab" id="t-vip" onclick="go('vip')">⭐ VIP<span class="bdg h" id="b-vip"></span></button>
     <button class="tab" id="t-stats" onclick="go('stats')">📊 Stats</button>
@@ -380,38 +380,59 @@ function rImp(){
   set('v-imp',grouped(cases,c=>c.fu,(k,n)=>`<span class="imp">📅 ${dayLbl(k)}</span> <span style="color:var(--t3);font-size:11px">(${n})</span>`,'No upcoming cases this week','Cases with F/U from tomorrow to Friday appear here','sh imp'));
 }
 
-/* ===== DONE (past 7 days) ===== */
+/* ===== DONE (all active cases, sorted by fu date) ===== */
 function setDoneFilter(f){doneFilter=f;rDone()}
 function rDone(){
-  const wa=weekAgo(),t=today();
-  let cases=load().filter(c=>!c.dc&&c.fu&&c.fu>=wa&&c.fu<=t);
+  let cases=load().filter(c=>!c.dc);
   if(doneSearch){const q=doneSearch.toLowerCase();cases=cases.filter(c=>[c.nm,c.hn,c.wd,c.dx].some(x=>(x||'').toLowerCase().includes(q)))}
   if(doneFilter!=='All')cases=cases.filter(c=>c.ty===doneFilter);
-  cases.sort((a,b)=>b.fu.localeCompare(a.fu));
   let h=`<div class="sw"><span class="sico">🔍</span><input class="si" placeholder="Search..." value="${doneSearch}" oninput="doneSearch=this.value;rDone()" type="search"></div>`;
   h+=chips(TYPES,doneFilter,'setDoneFilter');
-  h+=grouped(cases,c=>c.fu,(k,n)=>`📋 ${dayLbl(k)} (${n})`,'No visits this week','Cases with F/U in the past 7 days appear here');
+  if(!cases.length){h+=`<div class="empty"><div class="ei">🏥</div><div class="et">No active cases</div><div class="es">Tap + to add a consult</div></div>`;set('v-done',h);return}
+  const withDate=cases.filter(c=>c.fu).sort((a,b)=>a.fu.localeCompare(b.fu));
+  const noDate=cases.filter(c=>!c.fu);
+  if(withDate.length){
+    const g={};withDate.forEach(c=>{(g[c.fu]=g[c.fu]||[]).push(c)});
+    h+=Object.keys(g).sort().map(k=>`<div class="sh">📋 ${dayLbl(k)} (${g[k].length})</div><div class="cards">${g[k].map(card).join('')}</div>`).join('');
+  }
+  if(noDate.length)h+=`<div class="sh">No F/U date (${noDate.length})</div><div class="cards">${noDate.map(card).join('')}</div>`;
   set('v-done',h);
 }
 
 /* ===== DISCHARGED ===== */
 function setDcFilter(f){dcFilter=f;rDc()}
+function dcApplyDate(){dcFrom=document.getElementById('dc-from').value;dcTo=document.getElementById('dc-to').value;rDc()}
 function rDc(){
   let cases=load().filter(c=>c.dc);
   if(dcSearch){const q=dcSearch.toLowerCase();cases=cases.filter(c=>[c.nm,c.hn,c.wd,c.dx].some(x=>(x||'').toLowerCase().includes(q)))}
   if(dcFilter!=='All')cases=cases.filter(c=>c.ty===dcFilter);
   if(dcFrom||dcTo){
     cases=cases.filter(c=>{
-      const d=c.dcDate||'';
+      const d=(c.dcDate||c.fu||'');
       return(!dcFrom||d>=dcFrom)&&(!dcTo||d<=dcTo);
     });
   }
-  cases.sort((a,b)=>(b.dcDate||'').localeCompare(a.dcDate||''));
+  cases.sort((a,b)=>(b.dcDate||b.fu||'').localeCompare(a.dcDate||a.fu||''));
   let h=`<div class="sw"><span class="sico">🔍</span><input class="si" placeholder="Search discharged..." value="${dcSearch}" oninput="dcSearch=this.value;rDc()" type="search"></div>`;
   h+=chips(TYPES,dcFilter,'setDcFilter');
-  h+=`<div class="dr"><label>From</label><input class="fi" type="date" value="${dcFrom}" onchange="dcFrom=this.value;rDc()"><label>To</label><input class="fi" type="date" value="${dcTo}" onchange="dcTo=this.value;rDc()"></div>`;
+  h+=`<div class="dr">
+    <label>From</label><input class="fi" id="dc-from" type="date" value="${dcFrom}">
+    <label>To</label><input class="fi" id="dc-to" type="date" value="${dcTo}">
+    <button onclick="dcApplyDate()" style="padding:8px 12px;border-radius:8px;background:var(--a);border:none;color:#fff;font-size:13px;cursor:pointer;white-space:nowrap;flex-shrink:0">🔍</button>
+  </div>`;
   h+=`<button class="expbtn" onclick="expCSV()">⬇ Export CSV</button>`;
-  h+=grouped(cases,c=>monthKey(c.dcDate||c.fu),(k,n)=>`📦 ${k} <span>(${n})</span>`,'No discharged patients','','mhdr');
+  if(!cases.length){
+    h+=`<div class="empty"><div class="ei">🏠</div><div class="et">No discharged patients</div><div class="es">${(dcFrom||dcTo)?'No matches for selected date range':'Use Discharge on any active case'}</div></div>`;
+  } else {
+    const g={};
+    cases.forEach(c=>{const k=monthKey(c.dcDate||c.fu);(g[k]=g[k]||[]).push(c)});
+    // Sort months newest first
+    const sortedKeys=Object.keys(g).sort((a,b)=>{
+      const toNum=s=>{const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];const[m,y]=s.split(' ');return parseInt(y)*12+mn.indexOf(m)};
+      return toNum(b)-toNum(a);
+    });
+    h+=sortedKeys.map(k=>`<div class="mhdr">📦 ${k} <span>(${g[k].length})</span></div><div class="cards">${g[k].map(card).join('')}</div>`).join('');
+  }
   set('v-dc',h);
 }
 
@@ -452,7 +473,7 @@ function badges(){
   const b=(id,n)=>{const e=document.getElementById(id);if(!e)return;e.textContent=n;e.classList.toggle('h',!n)};
   b('b-today',all.filter(c=>!c.dc&&(c.fu===t||(c.fu&&c.fu<t))).length);
   b('b-imp',all.filter(c=>!c.dc&&c.fu&&c.fu>=tom&&c.fu<=we).length);
-  b('b-done',all.filter(c=>!c.dc&&c.fu&&c.fu>=wa&&c.fu<=t).length);
+  b('b-done',all.filter(c=>!c.dc).length);
   b('b-dc',all.filter(c=>c.dc).length);
   b('b-vip',all.filter(c=>c.st).length);
 }
